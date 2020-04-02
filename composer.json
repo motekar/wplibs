@@ -1,0 +1,21 @@
+{
+    "name": "motekar/wplibs",
+    "description": "WordPress helper library",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Fadlul Alim",
+            "email": "fad.lee@hotmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.0.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Motekar\\WPLibs\\": "src/"
+        }
+    }
+}
