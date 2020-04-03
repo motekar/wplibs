@@ -4,25 +4,99 @@ namespace Motekar\WPLibs;
 class Settings_Page {
 	public $page_name;
 	public $option_name;
-	public $settings;
 
-	public function __construct( $page_name, $option_name = '' ) {
+	private $settings_array = [];
+	private $recent_data = [];
+
+	public function __construct( $page_name, $option_name = '', $callback = false ) {
 		$this->page_name   = $page_name;
 		$this->option_name = empty( $option_name ) ? $page_name : $option_name;
 
-		\add_action( 'admin_init', array( $this, 'init_settings' ) );
+		\add_action( 'admin_init', function() use ( $callback ) {
+			// callback to populate $setings_array
+			call_user_func( $callback, $this );
+			$this->init_settings();
+		} );
+
 		\add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
 		\add_action( 'plugins_loaded', array( $this, 'save_options' ) );
 	}
 
+	public function tab( $tab ) {
+		$this->recent_data['tab'] = $tab;
+
+		if ( ! isset( $this->settings_array[$tab] ) ) {
+			$this->settings_array[$tab] = [
+				'sections' => []
+			];
+		}
+	}
+
+	public function section( $section, $label = '' ) {
+		$tab = $this->recent_data['tab'] ?? '';
+
+		if ( empty( $tab ) ) {
+			return false;
+		}
+
+		$this->recent_data['section'] = $section;
+
+		if ( ! isset( $this->settings_array[$tab]['sections'][$section] ) ) {
+			$this->settings_array[$tab]['sections'][$section] = [
+				'label'  => $label,
+				'fields' => []
+			];
+		}
+	}
+
+	public function field( $field_name, $field_type, $args ) {
+		$tab     = $this->recent_data['tab'] ?? '';
+		$section = $this->recent_data['section'] ?? '';
+
+		if ( empty( $tab ) || empty( $section ) ) {
+			return false;
+		}
+
+		$args['type']  = $field_type;
+		$args['label'] = $args['label'] ?? ucwords( str_replace( ['_', '-'], ' ', $field_name) );
+
+		$this->settings_array[$tab]['sections'][$section]['fields'][$field_name] = $args;
+	}
+
+	public function section_for( $parent, $section_name, $section_label = '' ) {
+		if ( ! isset( $this->settings_array[$parent] ) ) {
+			return false;
+		}
+
+		$this->recent_data['section'] = $section_name;
+
+		$this->settings_array[$parent]['sections'][$section_name] = [
+			'label'  => $section_label,
+			'fields' => []
+		];
+	}
+
+	public function field_for( $parent, $field_name, $field_type, $args ) {
+		$parents = explode( '.', $parent );
+		if ( count( $parents ) != 2 ) {
+			return false;
+		}
+
+		list( $tab, $section ) = $parents;
+
+		$args['type']  = $field_type;
+		$args['label'] = $args['label'] ?? ucwords( str_replace( ['_', '-'], ' ', $field_name) );
+		$this->settings_array[$tab]['sections'][$section]['fields'][$field_name] = $args;
+	}
+
 	public function init_settings() {
-		$this->settings = \apply_filters( $this->page_name . '_array', $this->_default_settings() );
+		$this->settings_array = \apply_filters( $this->page_name . '_scheme', $this->settings_array );
 
 		// save initial settings
 		if ( false === get_option( $this->option_name, false ) ) {
 			$initial_options = [];
-			foreach ( $this->settings as $page_name => $page ) {
+			foreach ( $this->settings_array as $page_name => $page ) {
 				foreach ( $page['sections'] as $section_name => $section ) {
 					foreach ( $section['fields'] as $field_name => $field ) {
 						$initial_options[$field_name] = $field['default'] ?? '';
@@ -119,7 +193,7 @@ class Settings_Page {
 	}
 
 	private function _register_settings() {
-		foreach ( $this->settings as $page_name => $page ) {
+		foreach ( $this->settings_array as $page_name => $page ) {
 			if ( ! isset( $page['sections'] ) ) {
 				continue;
 			}
@@ -196,19 +270,19 @@ class Settings_Page {
 		if ( filter_input( INPUT_POST, 'option_page' ) != $this->page_name ) {
 			return;
 		} else {
-			check_admin_referer( $this->page_name . '-options' );
+			\check_admin_referer( $this->page_name . '-options' );
 		}
 
 		$is_ajax = 'xmlhttprequest' == strtolower( $_SERVER['HTTP_X_REQUESTED_WITH'] ?? '' );
 
 		$options = filter_input( INPUT_POST, $this->page_name, FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
 		$options = $options ?? []; // must be an array
-		$options = apply_filters( $this->page_name . '_input', $options );
-		update_option( $this->option_name, $options );
+		$options = \apply_filters( $this->page_name . '_input', $options );
+		\update_option( $this->option_name, $options );
 
 		if ( $is_ajax ) {
-			wp_send_json_success( [
-				'msg' => __('Settings Updated', 'derma')
+			\wp_send_json_success( [
+				'msg' => 'Settings Updated'
 			] );
 			exit;
 		}
@@ -220,8 +294,8 @@ class Settings_Page {
 		// return;
 
 		// Redirect back to the settings page that was submitted.
-		$goback = add_query_arg( 'settings-updated', 'true', wp_get_referer() );
-		wp_redirect( $goback );
+		$goback = \add_query_arg( 'settings-updated', 'true', wp_get_referer() );
+		\wp_redirect( $goback );
 		exit;
 	}
 }
