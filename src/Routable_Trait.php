@@ -31,11 +31,12 @@ trait Routable_Trait {
 	var $root_slug = '';
 	var $routes = array();
 
-	public function route_init( $root_slug ) {
+	public function route_init( $root_slug, $callback ) {
 		$this->root_slug = $root_slug;
 
 		if ( preg_match("#^{$this->root_slug}#", $this->get_current_uri() ) ) {
-			$this->route_register();
+			// callback for route registration
+			call_user_func( $callback );
 
 			if ( $this->route_resolve( false ) ) {
 				$this->register_route_filters();
@@ -45,16 +46,16 @@ trait Routable_Trait {
 
 	private function register_route_filters() {
 		\add_action( 'after_setup_theme', function() {
-			if ( ! current_user_can( 'manage_options' ) && ! is_admin() ) {
-				show_admin_bar(false);
+			if ( ! \current_user_can( 'manage_options' ) && ! is_admin() ) {
+				\show_admin_bar(false);
 			}
-			remove_action( 'wp_print_styles', 'print_emoji_styles' );
-			remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
+			\remove_action( 'wp_print_styles', 'print_emoji_styles' );
+			\remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
 		} );
 
 		\add_action( 'wp_enqueue_scripts', function() {
-			wp_dequeue_style( 'wp-block-library' );
- 			wp_dequeue_style( 'wp-block-library-theme' );
+			\wp_dequeue_style( 'wp-block-library' );
+ 			\wp_dequeue_style( 'wp-block-library-theme' );
 		} );
 
 		// Codes below are inspired from typerocket Routes.php
