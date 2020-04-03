@@ -178,7 +178,7 @@ class Settings_Page {
 	}
 
 	public function render_page() {
-		derma_view( 'settings/page', [
+		Helper::view( 'settings', [
 			'page_name'   => $this->page_name,
 			'option_name' => $this->option_name,
 		] );
@@ -189,7 +189,7 @@ class Settings_Page {
 		$args['raw_name'] = $args['name'];
 		$args['name']     = "{$this->page_name}[{$args['name']}]";
 
-		derma_view( 'settings/fields/' . $args['type'], $args );
+		Helper::view( 'fields/' . $args['type'], $args );
 	}
 
 	public function save_options() {
