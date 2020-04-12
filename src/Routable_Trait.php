@@ -140,6 +140,7 @@ trait Routable_Trait {
 
 			if ( $route['path'] == $current_uri ) {
 				$route_matched = $route;
+				break;
 			} elseif ( strpos( $route['path'], '{' ) ) {
 				// route with parameter
 				list( $route_matched, $route_params ) =
