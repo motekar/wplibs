@@ -35,12 +35,14 @@ trait Routable_Trait {
 		$this->root_slug = $root_slug;
 
 		if ( preg_match("#^{$this->root_slug}#", $this->get_current_uri() ) ) {
-			// callback for route registration
-			call_user_func( $callback );
+			\add_action( 'plugins_loaded', function() use( $callback ) {
+				// callback for route registration
+				call_user_func( $callback );
 
-			if ( $this->route_resolve( false ) ) {
-				$this->register_route_filters();
-			}
+				if ( $this->route_resolve( false ) ) {
+					$this->register_route_filters();
+				}
+			} );
 		}
 	}
 
