@@ -12,14 +12,14 @@
 			<?php echo $btn_text ?? 'Select or Upload'; ?>
 		</button>
 
-		<a href="#" class="button button-link-delete js-media-trash-btn" style="display: <?php echo $value? '' : 'none'; ?>;"><?php _e( 'Delete', 'derma' ); ?></a>
+		<a href="#" class="button button-link-delete js-media-trash-btn" style="display: <?php echo $value? '' : 'none'; ?>;">Delete</a>
 	</div>
 </div>
 
 <?php
 // output JS once
-if ( ! defined( 'DERMA_FIELD_MEDIA_JS' ) ):
-	define( 'DERMA_FIELD_MEDIA_JS', true );
+if ( ! defined( 'WPLIBS_FIELD_MEDIA_JS' ) ):
+	define( 'WPLIBS_FIELD_MEDIA_JS', true );
 ?>
 <script type="text/javascript">
 jQuery(function() {

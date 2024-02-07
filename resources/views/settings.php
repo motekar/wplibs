@@ -7,7 +7,7 @@ $current_tab  = $_GET['tab'] ?? $setting_tabs[0];
 
 <style type="text/css">
 	[x-cloak] { display: none; }
-	.derma-settings h2 { margin-top: 2em; }
+	.wplibs-settings h2 { margin-top: 2em; }
 </style>
 
 <script type="text/javascript">
@@ -21,16 +21,16 @@ window.onpopstate = function(e){
 	if(e.state && e.state.tab) {
 		current_tab = e.state.tab;
 	}
-	document.querySelector('div.derma-settings').__x.$data["tab"] = current_tab;
+	document.querySelector('div.wplibs-settings').__x.$data["tab"] = current_tab;
 };
 
 </script>
 
-<div class="wrap derma-settings" x-cloak x-data='{
+<div class="wrap wplibs-settings" x-cloak x-data='{
 	tab: "<?php echo $current_tab; ?>",
 	settings: <?php echo json_encode( get_option( $option_name, [] ) ); ?>
 }'>
-	<h1><?php _e( 'Settings', 'derma' ); ?></h1>
+	<h1>Settings</h1>
 
 	<div class="nav-tab-wrapper">
 	<?php foreach ( $setting_tabs as $key ) { ?>
