@@ -128,7 +128,8 @@ trait Routable_Trait {
 		$current_method = strtolower( $_SERVER['REQUEST_METHOD'] );
 
 		// method spoofing, inspired by Laravel
-		if ( preg_match( '#^(put|patch|delete)#i', filter_input( INPUT_POST, '_method' ) ) ) {
+		$method = filter_input( INPUT_POST, '_method' ) ?? '';
+		if ( preg_match( '#^(put|patch|delete)#i', $method ) ) {
 			$current_method = filter_input( INPUT_POST, '_method' );
 		}
 
